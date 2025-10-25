@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="text-xl font-bold mb-4">Your Search History</h2>
+<ul>
+    {% for item in history %}
+        <li class="mb-2 flex justify-between items-center">
+            {{ item.query }}
+            <a href="{% url 'delete_history' item.id %}" class="text-red-500 hover:underline">Delete</a>
+        </li>
+    {% empty %}
+        <li>No search history yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

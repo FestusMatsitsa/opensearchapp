@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Search Media{% endblock %}
+
+{% block content %}
+
+<div class="content">
+    <h2>Search Media</h2>
+
+    <form method="get" action="{% url 'search' %}" class="flex flex-wrap gap-2 items-center mb-6">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search..."
+               class="border rounded px-3 py-2 w-64" />
+    
+        <select name="license" class="border rounded px-3 py-2">
+            <option value="">All Licenses</option>
+            <option value="cc0" {% if request.GET.license == 'cc0' %}selected{% endif %}>CC0</option>
+            <option value="by" {% if request.GET.license == 'by' %}selected{% endif %}>CC BY</option>
+            <option value="by-sa" {% if request.GET.license == 'by-sa' %}selected{% endif %}>CC BY-SA</option>
+            <option value="by-nd" {% if request.GET.license == 'by-nd' %}selected{% endif %}>CC BY-ND</option>
+            <option value="by-nc" {% if request.GET.license == 'by-nc' %}selected{% endif %}>CC BY-NC</option>
+            <option value="by-nc-sa" {% if request.GET.license == 'by-nc-sa' %}selected{% endif %}>CC BY-NC-SA</option>
+            <option value="by-nc-nd" {% if request.GET.license == 'by-nc-nd' %}selected{% endif %}>CC BY-NC-ND</option>
+        </select>
+    
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+            Search
+        </button>
+    </form>
+    
+    {% if search_history %}
+    <div class="mt-6">
+        <h3 class="font-semibold mb-2">Your Search History</h3>
+        <ul class="flex flex-wrap gap-2">
+            {% for item in search_history %}
+                <li class="bg-gray-100 px-3 py-1 rounded-full text-sm flex items-center">
+                    <a href="?q={{ item.query }}" class="text-blue-600">{{ item.query }}</a>
+                    <a href="{% url 'delete_search' item.pk %}" class="text-red-500 ml-2">×</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'clear_searches' %}" class="text-blue-600 text-sm mt-2 inline-block">Clear All</a>
+    </div>
+    {% endif %}
+
+
+    {% if results %}
+    <div class="media-list">
+        {% for item in results %}
+        <div class="media-item">
+            {% if item.url %}
+            <a href="{{ item.foreign_landing_url|default:item.url }}" target="_blank">
+                <img src="{{ item.url }}" alt="{{ item.title|default:'Untitled' }}" class="media-preview">
+            </a>
+            {% else %}
+            <div style="height: 200px; background: #eee; display: flex; align-items: center; justify-content: center;">No Image</div>
+            {% endif %}
+            <h4 class="media-title">{{ item.title|default:"Untitled" }}</h4>
+            <p class="media-creator">By {{ item.creator|default:"Unknown" }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No results found.</p>
+    {% endif %}
+</div>
+{% if recent_searches %}
+    <div class="mb-4">
+        <h3 class="font-semibold mb-2">Recent Searches</h3>
+        <ul class="flex flex-wrap gap-2">
+            {% for term in recent_searches %}
+                <li class="bg-gray-200 px-3 py-1 rounded-full text-sm">
+                    <a href="?q={{ term }}">{{ term }}</a>
+                    <a href="{% url 'delete_search' term %}" class="text-red-500 ml-1">×</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'clear_searches' %}" class="text-blue-600 text-sm mt-2 inline-block">Clear All</a>
+    </div>
+{% endif %}
+{% endblock %}
