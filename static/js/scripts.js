@@ -268,6 +268,7 @@ function initFormValidation() {
     });
 }
 
+// Validate individual input
 function validateInput(input) {
     const value = input.value.trim();
     const isValid = input.checkValidity();
