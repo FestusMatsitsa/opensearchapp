@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from .forms import RegisterForm
 from .models import SearchHistory
 import requests
-
+# media_app/views.py
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
