@@ -13,9 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✨ Openverse Search App loaded successfully!');
 });
-
 // ============================================
-// Image Lazy Loading with Fade-in Effect
+// Image Lazy Loading with Fade-in Effect - FIXED
 // ============================================
 function initImageLazyLoading() {
     const images = document.querySelectorAll('.media-preview');
@@ -24,27 +23,37 @@ function initImageLazyLoading() {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    const img = entry.target;
+                    const element = entry.target;
+                    
+                    // Find the actual image element inside .media-preview
+                    const img = element.tagName === 'IMG' ? element : element.querySelector('img');
+                    
+                    if (!img) return;
                     
                     // Add loading state
                     img.style.opacity = '0';
                     img.style.transition = 'opacity 0.5s ease-in-out';
                     
-                    // Load image
+                    // Load image only if data-src exists
                     if (img.dataset.src) {
-                        img.src = img.dataset.src;
+                        const src = img.dataset.src;
+                        img.src = src;
+                        
+                        img.onload = function() {
+                            img.style.opacity = '1';
+                        };
+                        
+                        img.onerror = function() {
+                            img.style.opacity = '1';
+                            img.alt = 'Image failed to load';
+                            console.error('Failed to load image:', src);
+                        };
+                    } else {
+                        // If no data-src, just show the image
+                        img.style.opacity = '1';
                     }
                     
-                    img.onload = function() {
-                        img.style.opacity = '1';
-                    };
-                    
-                    img.onerror = function() {
-                        img.style.opacity = '1';
-                        img.alt = 'Image failed to load';
-                    };
-                    
-                    observer.unobserve(img);
+                    observer.unobserve(element);
                 }
             });
         }, {
@@ -52,11 +61,19 @@ function initImageLazyLoading() {
         });
         
         images.forEach(img => imageObserver.observe(img));
+    } else {
+        // Fallback for browsers without IntersectionObserver
+        images.forEach(element => {
+            const img = element.tagName === 'IMG' ? element : element.querySelector('img');
+            if (img && img.dataset.src) {
+                img.src = img.dataset.src;
+            }
+        });
     }
 }
 
 // ============================================
-// Search Enhancements
+// Search Enhancements - FIXED
 // ============================================
 function initSearchEnhancements() {
     const searchInput = document.querySelector('input[name="q"]');
@@ -89,23 +106,30 @@ function initSearchEnhancements() {
                 e.preventDefault();
                 showNotification('Please enter a search term', 'warning');
                 searchInput.focus();
-            }
-        });
-        
-        // Show loading state
-        searchForm.addEventListener('submit', function() {
-            const button = searchForm.querySelector('button[type="submit"]');
-            if (button && searchInput.value.trim() !== '') {
-                button.innerHTML = '<span class="loading"></span> Searching...';
-                button.disabled = true;
+            } else {
+                // Show loading state only when there's a valid query
+                const button = searchForm.querySelector('button[type="submit"]');
+                if (button) {
+                    button.innerHTML = '<span class="loading"></span> Searching...';
+                    button.disabled = true;
+                    
+                    // Also show loading message in results area
+                    const resultsInfo = document.querySelector('.results-info');
+                    if (resultsInfo) {
+                        resultsInfo.innerHTML = '<p class="text-muted">Searching... <span class="loading"></span></p>';
+                    }
+                }
             }
         });
     }
 }
-
-// Add clear button to search input
+// Add clear button to search input - FIXED POSITIONING
 function addClearButton(input) {
-    if (!input.value) return;
+    // Remove any existing clear button first
+    const existingBtn = input.parentElement.querySelector('.clear-search-btn');
+    if (existingBtn) {
+        existingBtn.remove();
+    }
     
     const clearBtn = document.createElement('button');
     clearBtn.innerHTML = '×';
@@ -113,35 +137,62 @@ function addClearButton(input) {
     clearBtn.className = 'clear-search-btn';
     clearBtn.style.cssText = `
         position: absolute;
-        right: 10px;
+        right: 8px;
         top: 50%;
         transform: translateY(-50%);
         background: transparent;
         border: none;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         color: #64748b;
         cursor: pointer;
         padding: 0;
-        width: 30px;
-        height: 30px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
         display: none;
+        z-index: 10;
     `;
     
     clearBtn.addEventListener('click', function() {
         input.value = '';
         input.focus();
         clearBtn.style.display = 'none';
+        // Trigger input event to update character counter
+        input.dispatchEvent(new Event('input'));
+    });
+    
+    clearBtn.addEventListener('mouseenter', function() {
+        clearBtn.style.background = '#f1f5f9';
+        clearBtn.style.color = '#475569';
+    });
+    
+    clearBtn.addEventListener('mouseleave', function() {
+        clearBtn.style.background = 'transparent';
+        clearBtn.style.color = '#64748b';
     });
     
     input.addEventListener('input', function() {
-        clearBtn.style.display = input.value ? 'block' : 'none';
+        clearBtn.style.display = input.value ? 'flex' : 'none';
     });
     
-    // Make input wrapper relative
-    input.parentElement.style.position = 'relative';
-    input.parentElement.appendChild(clearBtn);
+    // Make input wrapper relative if not already
+    const inputWrapper = input.parentElement;
+    inputWrapper.style.position = 'relative';
+    inputWrapper.style.display = 'inline-block';
     
-    if (input.value) clearBtn.style.display = 'block';
+    // Add some right padding to input to make space for the clear button
+    input.style.paddingRight = '35px';
+    
+    inputWrapper.appendChild(clearBtn);
+    
+    // Show button if input already has value
+    if (input.value) {
+        clearBtn.style.display = 'flex';
+    }
 }
 
 // Add character counter
