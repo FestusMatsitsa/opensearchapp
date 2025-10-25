@@ -5,29 +5,32 @@
 
 <div class="content">
     <h2>Search Media</h2>
-
-    <form method="get" action="{% url 'search' %}" class="flex flex-wrap gap-2 items-center mb-6">
-        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search..."
-               class="border rounded px-3 py-2 w-64" />
-    
-        <select name="license" class="border rounded px-3 py-2">
+    <form method="get" action="{% url 'search' %}" class="search-form mb-6">
+    <div class="form-row">
+        <div class="search-input-container">
+            <input type="text" name="q" value="{{ query }}" placeholder="🔍 Search for images..."
+                   class="search-input" />
+        </div>
+        
+        <select name="license" class="license-select">
             <option value="">All Licenses</option>
-            <option value="cc0" {% if request.GET.license == 'cc0' %}selected{% endif %}>CC0</option>
-            <option value="by" {% if request.GET.license == 'by' %}selected{% endif %}>CC BY</option>
-            <option value="by-sa" {% if request.GET.license == 'by-sa' %}selected{% endif %}>CC BY-SA</option>
-            <option value="by-nd" {% if request.GET.license == 'by-nd' %}selected{% endif %}>CC BY-ND</option>
-            <option value="by-nc" {% if request.GET.license == 'by-nc' %}selected{% endif %}>CC BY-NC</option>
-            <option value="by-nc-sa" {% if request.GET.license == 'by-nc-sa' %}selected{% endif %}>CC BY-NC-SA</option>
-            <option value="by-nc-nd" {% if request.GET.license == 'by-nc-nd' %}selected{% endif %}>CC BY-NC-ND</option>
+            <option value="cc0" {% if license_type == 'cc0' %}selected{% endif %}>CC0</option>
+            <option value="by" {% if license_type == 'by' %}selected{% endif %}>CC BY</option>
+            <option value="by-sa" {% if license_type == 'by-sa' %}selected{% endif %}>CC BY-SA</option>
+            <option value="by-nd" {% if license_type == 'by-nd' %}selected{% endif %}>CC BY-ND</option>
+            <option value="by-nc" {% if license_type == 'by-nc' %}selected{% endif %}>CC BY-NC</option>
+            <option value="by-nc-sa" {% if license_type == 'by-nc-sa' %}selected{% endif %}>CC BY-NC-SA</option>
+            <option value="by-nc-nd" {% if license_type == 'by-nc-nd' %}selected{% endif %}>CC BY-NC-ND</option>
         </select>
-    
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        
+        <button type="submit" class="search-button">
             Search
         </button>
-    </form>
+    </div>
+</form>
     
     {% if search_history %}
-    <div class="mt-6">
+    <div class="mt-6 mb-6">
         <h3 class="font-semibold mb-2">Your Search History</h3>
         <ul class="flex flex-wrap gap-2">
             {% for item in search_history %}
@@ -41,14 +44,26 @@
     </div>
     {% endif %}
 
+    {% if query %}
+        <div class="results-info mt-4 mb-4">
+            <p class="text-muted">
+                {% if results %}
+                    Found <strong>{{ total_results }}</strong> results for "<strong>{{ query }}</strong>"
+                    {% if license_type %}with <strong>{{ license_type }}</strong> license{% endif %}
+                {% else %}
+                    <!-- Remove the "Searching..." text here since JavaScript handles it -->
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
 
     {% if results %}
     <div class="media-list">
         {% for item in results %}
         <div class="media-item">
             {% if item.url %}
-            <a href="{{ item.foreign_landing_url|default:item.url }}" target="_blank">
-                <img src="{{ item.url }}" alt="{{ item.title|default:'Untitled' }}" class="media-preview">
+            <a href="{{ item.foreign_landing_url|default:item.url }}" target="_blank" rel="noopener noreferrer">
+                <img src="{{ item.url }}" alt="{{ item.title|default:'Untitled' }}" class="media-preview" loading="lazy">
             </a>
             {% else %}
             <div style="height: 200px; background: #eee; display: flex; align-items: center; justify-content: center;">No Image</div>
@@ -58,22 +73,36 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Pagination Controls -->
+    {% if prev_page or next_page %}
+    <div class="pagination-controls">
+        {% if prev_page %}
+        <a href="?q={{ query }}{% if license_type %}&license={{ license_type }}{% endif %}&page={{ prev_page }}" 
+           class="pagination-btn">
+            ← Previous
+        </a>
+        {% else %}
+        <span class="pagination-btn-disabled">← Previous</span>
+        {% endif %}
+        
+        <span class="page-info">Page {{ current_page }}</span>
+        
+        {% if next_page %}
+        <a href="?q={{ query }}{% if license_type %}&license={{ license_type }}{% endif %}&page={{ next_page }}" 
+           class="pagination-btn">
+            Next →
+        </a>
+        {% else %}
+        <span class="pagination-btn-disabled">Next →</span>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% elif query and total_results == 0 %}
+    <p class="no-results">No results found for "{{ query }}". Try different keywords or license filters.</p>
     {% else %}
-    <p>No results found.</p>
+    <p class="no-results">Enter a search term to discover amazing free-to-use images! 🎨</p>
     {% endif %}
 </div>
-{% if recent_searches %}
-    <div class="mb-4">
-        <h3 class="font-semibold mb-2">Recent Searches</h3>
-        <ul class="flex flex-wrap gap-2">
-            {% for term in recent_searches %}
-                <li class="bg-gray-200 px-3 py-1 rounded-full text-sm">
-                    <a href="?q={{ term }}">{{ term }}</a>
-                    <a href="{% url 'delete_search' term %}" class="text-red-500 ml-1">×</a>
-                </li>
-            {% endfor %}
-        </ul>
-        <a href="{% url 'clear_searches' %}" class="text-blue-600 text-sm mt-2 inline-block">Clear All</a>
-    </div>
-{% endif %}
 {% endblock %}
