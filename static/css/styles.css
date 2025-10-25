@@ -418,7 +418,7 @@ ul.flex {
     gap: 0.5rem;
     list-style: none;
 }
-
+/* Search History Pills */
 ul.flex li {
     background: var(--bg-light);
     padding: 0.5rem 1rem;
