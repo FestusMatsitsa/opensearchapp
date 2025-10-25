@@ -185,6 +185,116 @@ input[type="text"]::placeholder {
     color: var(--text-muted);
 }
 
+/* Search Form Styles */
+.search-form {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.search-input-container {
+    position: relative;
+    display: inline-block;
+}
+
+.search-input {
+    width: 280px;
+    padding: 0.75rem 1rem;
+    padding-right: 2.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: var(--transition);
+    background: var(--bg-white);
+    font-family: inherit;
+    height: 48px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.license-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    background: var(--bg-white);
+    cursor: pointer;
+    height: 48px;
+    min-width: 150px;
+    transition: var(--transition);
+}
+
+.license-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-button {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    height: 48px;
+    white-space: nowrap;
+}
+
+.search-button:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+/* Clear button styles */
+.clear-search-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: var(--transition);
+    z-index: 10;
+}
+
+.clear-search-btn:hover {
+    background: var(--bg-light);
+    color: var(--text-dark);
+}
+
+/* Character counter */
+.char-counter {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-align: left;
+    width: 280px;
+}
+
 /* Search Form Specific */
 form.flex {
     display: flex;
@@ -512,6 +622,23 @@ form label {
     form.flex button {
         width: 100%;
     }
+
+    /* Search Form Responsive */
+    .form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-input,
+    .license-select,
+    .search-button {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .char-counter {
+        width: 100%;
+    }
 }
 
 /* Accessibility */
@@ -525,9 +652,68 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Pagination Controls */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 3rem;
+    padding: 2rem 0;
+}
+
+.pagination-btn {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.pagination-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    color: white;
+    text-decoration: none;
+}
+
+.pagination-btn-disabled {
+    background: var(--bg-light);
+    color: var(--text-muted);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.page-info {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.results-info {
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--primary-color);
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    font-size: 1.125rem;
+}
+
 /* Print Styles */
 @media print {
-    nav, button, .messages {
+    nav, button, .messages, .pagination-controls {
         display: none;
     }
     
