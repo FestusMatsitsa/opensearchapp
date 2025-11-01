@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-
+# Create your tests here.
 class AuthTest(TestCase):
     def test_user_registration(self):
         response = self.client.post('/register/', {'username': 'test', 'password1': 'testpass123', 'password2': 'testpass123'})
